@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: farmguard-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: farmguard
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations/001_initial_schema.sql:/docker-entrypoint-initdb.d/01_initial_schema.sql:ro
+      - ./migrations/002_row_level_security.sql:/docker-entrypoint-initdb.d/02_row_level_security.sql:ro
+      - ./migrations/003_seed_crop_catalog.sql:/docker-entrypoint-initdb.d/03_seed_crop_catalog.sql:ro
+      - ./migrations/004_seed_demo_farmer.sql:/docker-entrypoint-initdb.d/04_seed_demo_farmer.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d farmguard"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    driver: local

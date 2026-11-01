@@ -1,0 +1,215 @@
+{
+  "modelName": "FarmGuard-MobileNetV2-CropDisease",
+  "modelVersion": "1.0.0",
+  "framework": "TensorFlow 2.15",
+  "inputShape": [224, 224, 3],
+  "preprocessing": {
+    "colorSpace": "RGB",
+    "resizeMethod": "bilinear",
+    "normalization": "mobilenet_v2_zero_one",
+    "minDimension": 100,
+    "maxDimension": 4096
+  },
+  "confidenceThreshold": 0.75,
+  "classes": [
+    {
+      "index": 0,
+      "className": "Tomato___Early_blight",
+      "crop": "tomato",
+      "displayName": {
+        "en": "Tomato Early Blight (Alternaria solani)",
+        "te": "టొమాటో ఆకుమచ్చ తెగులు (ఎర్లీ బ్లైట్)"
+      },
+      "isHealthy": false,
+      "nextSteps": [
+        {
+          "action": "Prune Lower Infected Leaves",
+          "descriptionEn": "Remove and safely discard affected lower leaves touching the soil to reduce fungal spore dispersal. Do not compost diseased foliage.",
+          "descriptionTe": "నేలకు తగిలే తెగులు సోకిన కింది ఆకులను తుంచి కాల్చివేయండి లేదా దూరంగా పారవేయండి. ఎరువుల గుంతలో వేయవద్దు.",
+          "category": "sanitation"
+        },
+        {
+          "action": "Drip Irrigation & Avoid Overhead Watering",
+          "descriptionEn": "Water at the soil base rather than overhead to prevent leaf wetness that promotes fungal germination.",
+          "descriptionTe": "ఆకులపై నీరు పడకుండా మొక్క మొదట్లో మాత్రమే నీరు అందించండి (డ్రిప్ వాడకం ఉత్తమం).",
+          "category": "cultural_control"
+        },
+        {
+          "action": "Consult Local Agronomist / Extension Officer",
+          "descriptionEn": "Verify the diagnosis with your local Krishi Vigyan Kendra (KVK) officer for approved fungicide labels suitable for your growth stage.",
+          "descriptionTe": "మొక్క ప్రస్తుత దశకు అనుమతించబడిన పురుగుమందుల కోసం మీ స్థానిక కృషి విజ్ఞాన కేంద్రం (KVK) అధికారిని సంప్రదించండి.",
+          "category": "expert_consultation"
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "className": "Tomato___Late_blight",
+      "crop": "tomato",
+      "displayName": {
+        "en": "Tomato Late Blight (Phytophthora infestans)",
+        "te": "టొమాటో లేట్ బ్లైట్ (మాడు తెగులు)"
+      },
+      "isHealthy": false,
+      "nextSteps": [
+        {
+          "action": "Immediate Field Sanitation",
+          "descriptionEn": "Late blight spreads rapidly in cool, humid conditions. Destroy heavily blighted plants immediately.",
+          "descriptionTe": "చల్లని, తేమతో కూడిన వాతావరణంలో ఈ తెగులు వేగంగా వ్యాపిస్తుంది. బాగా దెబ్బతిన్న మొక్కలను వెంటనే తొలగించి నాశనం చేయండి.",
+          "category": "sanitation"
+        },
+        {
+          "action": "Improve Air Circulation",
+          "descriptionEn": "Stake tomato plants and increase spacing to allow sunlight penetration and rapid foliage drying.",
+          "descriptionTe": "మొక్కల మధ్య గాలి మరియు సూర్యరశ్మి బాగా తగిలేలా కట్టెలు కట్టి పైకి ఎత్తండి.",
+          "category": "cultural_control"
+        },
+        {
+          "action": "Agricultural Extension Advice",
+          "descriptionEn": "Urgent extension contact recommended. Consult university pest management schedules for copper-based or systemic treatments.",
+          "descriptionTe": "వెంటనే స్థానిక వ్యవసాయ విస్తరణ అధికారి లేదా విశ్వవిద్యాలయ నిపుణులను సంప్రదించి సలహా తీసుకోండి.",
+          "category": "expert_consultation"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "className": "Tomato___Healthy",
+      "crop": "tomato",
+      "displayName": {
+        "en": "Tomato Healthy Leaf",
+        "te": "ఆరోగ్యకరమైన టొమాటో ఆకు"
+      },
+      "isHealthy": true,
+      "nextSteps": [
+        {
+          "action": "Maintain Routine Monitoring",
+          "descriptionEn": "Continue standard balanced nutrition, adequate soil moisture, and regular leaf canopy inspection.",
+          "descriptionTe": "క్రమం తప్పకుండా నేల తేమను, సమతుల్య పోషకాలను అందిస్తూ పంటను గమనిస్తూ ఉండండి.",
+          "category": "monitoring"
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "className": "Rice___Blast",
+      "crop": "rice",
+      "displayName": {
+        "en": "Rice Blast (Magnaporthe oryzae)",
+        "te": "వరి అగ్గితెగులు (బ్లాస్ట్)"
+      },
+      "isHealthy": false,
+      "nextSteps": [
+        {
+          "action": "Manage Nitrogen Application",
+          "descriptionEn": "Avoid excessive nitrogen top-dressing as high succulent vegetative growth favors rapid blast proliferation.",
+          "descriptionTe": "ఎక్కువ మొత్తంలో నత్రజని (యూరియా) వేయడం ఆపండి. మోతాదుకు మించి యూరియా వేస్తే తెగులు తీవ్రత పెరుగుతుంది.",
+          "category": "cultural_control"
+        },
+        {
+          "action": "Water Management",
+          "descriptionEn": "Maintain a shallow standing water depth in paddy fields; moisture stress predisposes plants to blast infection.",
+          "descriptionTe": "మడిలో తగినంత నీటిమట్టాన్ని నిలకడగా ఉంచండి. చేను ఆరిపోకుండా జాగ్రత్తపడండి.",
+          "category": "cultural_control"
+        },
+        {
+          "action": "Consult Extension Officer",
+          "descriptionEn": "Inspect collar and panicle nodes. Consult the local agriculture department for recommended bio-agents like Pseudomonas fluorescens or approved systemic options.",
+          "descriptionTe": "స్థానిక వ్యవసాయ శాఖను సంప్రదించి సూడోమోనాస్ లేదా సిఫార్సు చేసిన నివారణ చర్యలు చేపట్టండి.",
+          "category": "expert_consultation"
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "className": "Rice___Brown_Spot",
+      "crop": "rice",
+      "displayName": {
+        "en": "Rice Brown Spot (Bipolaris oryzae)",
+        "te": "వరి గోధుమ రంగు మచ్చ తెగులు"
+      },
+      "isHealthy": false,
+      "nextSteps": [
+        {
+          "action": "Soil Nutrient Correction",
+          "descriptionEn": "Brown spot frequently indicates poor soil fertility or potassium/silicon deficiency. Review soil test results.",
+          "descriptionTe": "ఈ తెగులు తరచుగా పొటాష్ లేదా ఇతర పోషకాల లోపం వల్ల వస్తుంది. నేల పరీక్ష ఆధారంగా ఎరువులు వేయండి.",
+          "category": "cultural_control"
+        },
+        {
+          "action": "Monitor Seedling and Tillering Stage",
+          "descriptionEn": "Check for oval, sesame-seed like lesions. Keep field clean of wild grass host plants.",
+          "descriptionTe": "చేల గట్లపై ఉండే కలుపు మొక్కలను తొలగించండి.",
+          "category": "sanitation"
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "className": "Rice___Healthy",
+      "crop": "rice",
+      "displayName": {
+        "en": "Rice Healthy Leaf",
+        "te": "ఆరోగ్యకరమైన వరి ఆకు"
+      },
+      "isHealthy": true,
+      "nextSteps": [
+        {
+          "action": "Maintain Water and Nutrient Schedule",
+          "descriptionEn": "No disease symptoms detected. Follow recommended split fertilizer applications.",
+          "descriptionTe": "ఎలాంటి తెగులు లక్షణాలు లేవు. సిఫార్సు చేసిన ఎరువుల యాజమాన్యాన్ని కొనసాగించండి.",
+          "category": "monitoring"
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "className": "Cotton___Bacterial_Blight",
+      "crop": "cotton",
+      "displayName": {
+        "en": "Cotton Bacterial Blight (Xanthomonas citri pv. malvacearum)",
+        "te": "పత్తి బాక్టీరియా ఆకుమచ్చ తెగులు (కోణీయ మచ్చలు)"
+      },
+      "isHealthy": false,
+      "nextSteps": [
+        {
+          "action": "Sanitation of Infected Debris",
+          "descriptionEn": "Collect and destroy fallen infected leaves and squares to prevent bacterial carryover.",
+          "descriptionTe": "రాలిన తెగులు సోకిన ఆకులను ఏరి కాల్చివేయండి.",
+          "category": "sanitation"
+        },
+        {
+          "action": "Avoid Sprinkler / Splashing Irrigation",
+          "descriptionEn": "Water splashes spread bacteria rapidly from lower canopy to bolls. Use furrow or drip.",
+          "descriptionTe": "నీరు చిమ్మే పద్ధతిని నివారించండి, ఇది బ్యాక్టీరియాను ఇతర ఆకులకు వ్యాపింపజేస్తుంది.",
+          "category": "cultural_control"
+        },
+        {
+          "action": "Contact Extension Service",
+          "descriptionEn": "Seek advice from KVK or university entomology/pathology cell on bactericide spray timing if severe.",
+          "descriptionTe": "తెగులు తీవ్రంగా ఉంటే కృషి విజ్ఞాన కేంద్రం (KVK) అధికారులను సంప్రదించండి.",
+          "category": "expert_consultation"
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "className": "Cotton___Healthy",
+      "crop": "cotton",
+      "displayName": {
+        "en": "Cotton Healthy Leaf",
+        "te": "ఆరోగ్యకరమైన పత్తి ఆకు"
+      },
+      "isHealthy": true,
+      "nextSteps": [
+        {
+          "action": "Regular Pest Scouting",
+          "descriptionEn": "Maintain routine scouting for sucking pests and ensure balanced fertilization.",
+          "descriptionTe": "రసం పీల్చే పురుగుల కోసం క్రమం తప్పకుండా పంటను గమనిస్తూ ఉండండి.",
+          "category": "monitoring"
+        }
+      ]
+    }
+  ]
+}
+

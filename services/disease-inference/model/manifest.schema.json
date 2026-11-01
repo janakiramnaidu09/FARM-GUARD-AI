@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FarmGuardDiseaseModelManifest",
+  "type": "object",
+  "properties": {
+    "modelName": { "type": "string" },
+    "modelVersion": { "type": "string" },
+    "framework": { "type": "string" },
+    "inputShape": {
+      "type": "array",
+      "items": { "type": "integer" }
+    },
+    "preprocessing": {
+      "type": "object",
+      "properties": {
+        "colorSpace": { "type": "string" },
+        "resizeMethod": { "type": "string" },
+        "normalization": { "type": "string" },
+        "minDimension": { "type": "integer" },
+        "maxDimension": { "type": "integer" }
+      },
+      "required": ["colorSpace", "resizeMethod", "normalization"]
+    },
+    "confidenceThreshold": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "classes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "index": { "type": "integer" },
+          "className": { "type": "string" },
+          "crop": { "type": "string" },
+          "displayName": {
+            "type": "object",
+            "properties": {
+              "en": { "type": "string" },
+              "te": { "type": "string" }
+            },
+            "required": ["en", "te"]
+          },
+          "isHealthy": { "type": "boolean" },
+          "nextSteps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": { "type": "string" },
+                "descriptionEn": { "type": "string" },
+                "descriptionTe": { "type": "string" },
+                "category": { "type": "string" }
+              },
+              "required": ["action", "descriptionEn", "descriptionTe", "category"]
+            }
+          }
+        },
+        "required": ["index", "className", "crop", "displayName", "isHealthy", "nextSteps"]
+      }
+    }
+  },
+  "required": [
+    "modelName",
+    "modelVersion",
+    "framework",
+    "inputShape",
+    "preprocessing",
+    "confidenceThreshold",
+    "classes"
+  ]
+}
+

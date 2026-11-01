@@ -1,0 +1,42 @@
+{
+  "name": "farmguard-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FarmGuard AI - AI-Powered Agriculture Crop Advisory Assistant",
+  "workspaces": [
+    "frontend",
+    "backend",
+    "database",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "frontend": "npm run dev --workspace=@farmguard/frontend",
+    "backend": "npm run dev --workspace=@farmguard/backend",
+    "build:shared": "npm run build --workspace=@farmguard/shared",
+    "build:frontend": "npm run build --workspace=@farmguard/frontend",
+    "build:backend": "npm run build --workspace=@farmguard/backend",
+    "build:web": "npm run build:frontend",
+    "build:api": "npm run build:backend",
+    "dev:frontend": "npm run dev --workspace=@farmguard/frontend",
+    "dev:backend": "npm run dev --workspace=@farmguard/backend",
+    "dev:web": "npm run dev:frontend",
+    "dev:api": "npm run dev:backend",
+    "start:backend": "npm run start --workspace=@farmguard/backend",
+    "start:api": "npm run start:backend",
+    "db:test": "npm run test --workspace=@farmguard/database",
+    "db:migrate": "npm run migrate --workspace=@farmguard/database",
+    "db:seed": "npm run seed --workspace=@farmguard/database",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "keywords": [
+    "agriculture",
+    "ai",
+    "farmguard",
+    "crop-advisory",
+    "telugu"
+  ],
+  "author": "FarmGuard Team",
+  "license": "Apache-2.0"
+}
+
