@@ -16,7 +16,10 @@ export const CreateConversationSchema = z.object({
 });
 export const SendMessageSchema = z.object({
     content: z.string().min(1, 'Message cannot be empty').max(3000),
-    language: PreferredLanguageSchema.optional()
+    language: PreferredLanguageSchema.optional(),
+    latitude: z.number().optional().nullable(),
+    longitude: z.number().optional().nullable(),
+    locationName: z.string().max(200).optional().nullable()
 });
 export const ConversationMessageSchema = z.object({
     id: z.string().uuid(),

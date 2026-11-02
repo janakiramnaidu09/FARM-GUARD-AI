@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { CreateConversationSchema, SendMessageSchema } from '@farmguard/shared';
 import { authenticate, AuthenticatedRequest } from '../middleware/auth.js';
 import { geminiService } from '../services/gemini/geminiService.js';
+import { weatherService } from '../services/weather/weatherService.js';
 import { dataRepository } from '../db/repositories/dataRepository.js';
 import { createRateLimiter } from '../middleware/rateLimiter.js';
 import { config } from '../config/env.js';
@@ -70,16 +71,27 @@ router.post('/:conversationId/messages', aiLimiter, async (req: AuthenticatedReq
       return;
     }
 
-    const { content, language: overrideLang } = SendMessageSchema.parse(req.body);
+    const { content, language: overrideLang, latitude, longitude, locationName } = SendMessageSchema.parse(req.body);
     const lang = overrideLang || conv.language || req.user!.preferredLanguage || 'te';
 
-    // 1. Record user message
+    // 1. Fetch real-time GPS weather telemetry if coordinates provided
+    let gpsContext = '';
+    if (typeof latitude === 'number' && typeof longitude === 'number') {
+      try {
+        const { forecast } = await weatherService.getForecast('gps-live', latitude, longitude);
+        gpsContext = `Live GPS Location: ${latitude.toFixed(4)}°N, ${longitude.toFixed(4)}°E${locationName ? ` (${locationName})` : ''}. Current Ambient Telemetry: Temperature ${forecast.current.temperatureC}°C, Weather: ${forecast.current.conditionText}, Humidity: ${forecast.current.humidityPct}%, Wind: ${forecast.current.windSpeedKmh} km/h, Today's Expected Rain: ${forecast.daily[0]?.precipitationSumMm || 0}mm.`;
+      } catch {
+        gpsContext = `Live GPS Location: ${latitude.toFixed(4)}°N, ${longitude.toFixed(4)}°E${locationName ? ` (${locationName})` : ''}.`;
+      }
+    }
+
+    // 2. Record user message
     const userMsg = await dataRepository.addMessage(req.user!.id, conv.id, {
       role: 'user',
       content,
     });
 
-    // 2. Fetch context if attached to farm/field
+    // 3. Fetch context if attached to farm/field
     let farmContext = '';
     let fieldContext = '';
     let soilContext = '';
@@ -103,13 +115,14 @@ router.post('/:conversationId/messages', aiLimiter, async (req: AuthenticatedReq
       }
     }
 
-    // 3. Generate structured advice via Gemini
+    // 4. Generate structured advice via Gemini with university-grounded fallback
     const advice = await geminiService.generateAssistantAdvice({
       question: content,
       language: lang,
       farmContext,
       fieldContext,
       soilContext,
+      gpsContext,
       sourceReferences: [
         { id: 'ICAR-AGRI-2020', title: 'Handbook of Agriculture (ICAR New Delhi)' },
         { id: 'PJTSAU-GUIDE-2023', title: 'Vyavasaya Panchangam (PJTSAU Hyderabad)' },

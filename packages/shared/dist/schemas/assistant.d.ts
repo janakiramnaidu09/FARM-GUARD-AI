@@ -42,12 +42,21 @@ export type CreateConversation = z.infer<typeof CreateConversationSchema>;
 export declare const SendMessageSchema: z.ZodObject<{
     content: z.ZodString;
     language: z.ZodOptional<z.ZodEnum<["en", "te"]>>;
+    latitude: z.ZodNullable<z.ZodOptional<z.ZodNumber>>;
+    longitude: z.ZodNullable<z.ZodOptional<z.ZodNumber>>;
+    locationName: z.ZodNullable<z.ZodOptional<z.ZodString>>;
 }, "strip", z.ZodTypeAny, {
     content: string;
+    latitude?: number | null | undefined;
+    longitude?: number | null | undefined;
     language?: "en" | "te" | undefined;
+    locationName?: string | null | undefined;
 }, {
     content: string;
+    latitude?: number | null | undefined;
+    longitude?: number | null | undefined;
     language?: "en" | "te" | undefined;
+    locationName?: string | null | undefined;
 }>;
 export type SendMessage = z.infer<typeof SendMessageSchema>;
 export declare const ConversationMessageSchema: z.ZodObject<{
