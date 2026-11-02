@@ -40,8 +40,8 @@ services/disease-inference/dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+services/disease-inference/lib/
+services/disease-inference/lib64/
 parts/
 sdist/
 var/
