@@ -10,7 +10,9 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run build:shared && npm run build:backend",
+    "build:all": "npm run build:shared && npm run build:backend && npm run build:frontend",
+    "start": "npm run start:backend",
     "frontend": "npm run dev --workspace=@farmguard/frontend",
     "backend": "npm run dev --workspace=@farmguard/backend",
     "build:shared": "npm run build --workspace=@farmguard/shared",

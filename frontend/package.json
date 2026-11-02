@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "start": "vite",
     "frontend": "vite",
     "dev:frontend": "vite",
     "dev:web": "vite",
