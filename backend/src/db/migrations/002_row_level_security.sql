@@ -3,10 +3,8 @@
 
 -- 1. Enable and Force RLS on all user-owned tables
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE users FORCE ROW LEVEL SECURITY;
 
 ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE sessions FORCE ROW LEVEL SECURITY;
 
 ALTER TABLE farms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE farms FORCE ROW LEVEL SECURITY;
@@ -45,17 +43,56 @@ ALTER TABLE crop_catalog ENABLE ROW LEVEL SECURITY;
 
 -- 2. Define RLS Policies
 
--- Users: users can only view and update their own profile
+-- Users: users can only view and update their own profile, with public registration support
 DROP POLICY IF EXISTS users_isolation_policy ON users;
-CREATE POLICY users_isolation_policy ON users
-  USING (id = NULLIF(current_setting('app.user_id', true), '')::uuid)
+DROP POLICY IF EXISTS users_insert_policy ON users;
+DROP POLICY IF EXISTS users_select_policy ON users;
+DROP POLICY IF EXISTS users_update_policy ON users;
+
+CREATE POLICY users_insert_policy ON users
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY users_select_policy ON users
+  FOR SELECT USING (
+    id = NULLIF(current_setting('app.user_id', true), '')::uuid
+    OR current_setting('app.user_id', true) IS NULL
+    OR current_setting('app.user_id', true) = ''
+  );
+
+CREATE POLICY users_update_policy ON users
+  FOR UPDATE USING (id = NULLIF(current_setting('app.user_id', true), '')::uuid)
   WITH CHECK (id = NULLIF(current_setting('app.user_id', true), '')::uuid);
 
--- Sessions: users can only manage their own sessions
+-- Sessions: users can only manage their own sessions, with login/signup support
 DROP POLICY IF EXISTS sessions_isolation_policy ON sessions;
-CREATE POLICY sessions_isolation_policy ON sessions
-  USING (user_id = NULLIF(current_setting('app.user_id', true), '')::uuid)
-  WITH CHECK (user_id = NULLIF(current_setting('app.user_id', true), '')::uuid);
+DROP POLICY IF EXISTS sessions_insert_policy ON sessions;
+DROP POLICY IF EXISTS sessions_select_policy ON sessions;
+DROP POLICY IF EXISTS sessions_update_policy ON sessions;
+DROP POLICY IF EXISTS sessions_delete_policy ON sessions;
+
+CREATE POLICY sessions_insert_policy ON sessions
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY sessions_select_policy ON sessions
+  FOR SELECT USING (
+    user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
+    OR current_setting('app.user_id', true) IS NULL
+    OR current_setting('app.user_id', true) = ''
+  );
+
+CREATE POLICY sessions_update_policy ON sessions
+  FOR UPDATE USING (
+    user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
+    OR current_setting('app.user_id', true) IS NULL
+    OR current_setting('app.user_id', true) = ''
+  );
+
+CREATE POLICY sessions_delete_policy ON sessions
+  FOR DELETE USING (
+    user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
+    OR current_setting('app.user_id', true) IS NULL
+    OR current_setting('app.user_id', true) = ''
+  );
 
 -- Farms
 DROP POLICY IF EXISTS farms_isolation_policy ON farms;

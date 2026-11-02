@@ -37,7 +37,15 @@ if (config.DATABASE_URL && config.DATABASE_URL.trim().length > 0 && validPostgre
 }
 
 export function getPool(): pg.Pool | null {
+  return isConnected ? pool : null;
+}
+
+export function getRawPool(): pg.Pool | null {
   return pool;
+}
+
+export function setIsConnected(val: boolean): void {
+  isConnected = val;
 }
 
 export async function testConnection(): Promise<boolean> {

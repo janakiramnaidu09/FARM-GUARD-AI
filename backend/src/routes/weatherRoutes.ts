@@ -8,6 +8,35 @@ import { dataRepository } from '../db/repositories/dataRepository.js';
 const router = Router();
 router.use(authenticate);
 
+// Live geolocation weather forecast (by coordinates or regional fallback)
+router.get(['/live', '/weather/live'], async (req: AuthenticatedRequest, res, next) => {
+  try {
+    const lat = req.query.lat ? parseFloat(req.query.lat as string) : 17.8524;
+    const lon = req.query.lon ? parseFloat(req.query.lon as string) : 78.6833;
+    const force = req.query.refresh === 'true';
+
+    const weatherData = await weatherService.getForecast('live-gps', lat, lon, force);
+    const alerts = weatherService.evaluateAlerts(weatherData.forecast);
+
+    res.json({
+      success: true,
+      data: {
+        farmId: 'live-gps',
+        farmName: 'Live Meteorological Forecast',
+        latitude: lat,
+        longitude: lon,
+        forecast: weatherData.forecast,
+        alerts,
+        fetchedAt: weatherData.fetchedAt,
+        provider: weatherData.source,
+        cached: weatherData.cached,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Get farm weather forecast
 router.get('/:farmId/weather', async (req: AuthenticatedRequest, res, next) => {
   try {

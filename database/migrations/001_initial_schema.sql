@@ -1,7 +1,11 @@
 -- FarmGuard AI - Database Migration 001: Initial Schema
 -- Production PostgreSQL DDL with UUIDs, UTC Timestamps, and Constraints
 
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
+DO $$ BEGIN
+  CREATE EXTENSION IF NOT EXISTS pgcrypto;
+EXCEPTION WHEN OTHERS THEN
+  NULL;
+END $$;
 
 -- 1. Users
 CREATE TABLE IF NOT EXISTS users (

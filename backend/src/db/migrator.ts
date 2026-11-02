@@ -1,13 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { getPool } from './pool.js';
+import { getRawPool } from './pool.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export async function runMigrations(): Promise<void> {
-  const pool = getPool();
+  const pool = getRawPool();
   if (!pool) {
     console.warn('[Migrator] DATABASE_URL not configured. Skipping migrations.');
     return;

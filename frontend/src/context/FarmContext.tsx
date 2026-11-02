@@ -44,7 +44,24 @@ export const FarmProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return farmList[0];
         });
       } else {
-        setSelectedFarm(null);
+        // Auto-provision initial farm for user if none exists
+        try {
+          const defaultFarm = await api.createFarm({
+            name: `${user.displayName || 'Farmer'}'s Farm`,
+            countryCode: 'IN',
+            state: 'Telangana',
+            district: 'Siddipet',
+            locality: 'Gajwel',
+            latitude: 17.8524,
+            longitude: 78.6833,
+            locationSource: 'default',
+            timezone: 'Asia/Kolkata',
+          });
+          setFarms([defaultFarm]);
+          setSelectedFarm(defaultFarm);
+        } catch {
+          setSelectedFarm(null);
+        }
       }
     } catch (err) {
       console.warn('Failed to fetch user farms:', err);

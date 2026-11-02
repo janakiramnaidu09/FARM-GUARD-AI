@@ -148,6 +148,8 @@ export const api = {
   // Weather
   getFarmWeather: (farmId: string) => request<any>(`/farms/${farmId}/weather`),
   refreshFarmWeather: (farmId: string) => request<any>(`/farms/${farmId}/weather/refresh`, { method: 'POST' }),
+  getLiveWeather: (lat = 17.8524, lon = 78.6833, refresh = false) =>
+    request<any>(`/weather/live?lat=${lat}&lon=${lon}${refresh ? '&refresh=true' : ''}`),
   getFarmAlerts: (farmId: string) => request<any>(`/farms/${farmId}/alerts`),
   getAlertPreferences: (farmId: string) => request<any>(`/farms/${farmId}/alert-preferences`),
   updateAlertPreferences: (farmId: string, body: any) => request<any>(`/farms/${farmId}/alert-preferences`, { method: 'PUT', body: JSON.stringify(body) }),

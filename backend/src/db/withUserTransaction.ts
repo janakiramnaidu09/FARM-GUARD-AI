@@ -1,5 +1,5 @@
 import pg from 'pg';
-import { getPool } from './pool.js';
+import { getPool, setIsConnected } from './pool.js';
 
 export class DatabaseUnavailableError extends Error {
   public code = 'DATABASE_UNAVAILABLE';
@@ -26,7 +26,14 @@ export async function withUserTransaction<T>(
     throw new DatabaseUnavailableError();
   }
 
-  const client = await pool.connect();
+  let client: pg.PoolClient;
+  try {
+    client = await pool.connect();
+  } catch (err: any) {
+    setIsConnected(false);
+    throw new DatabaseUnavailableError(`PostgreSQL connection failed: ${err.message}`);
+  }
+
   try {
     await client.query('BEGIN');
     // Set transaction-local setting for RLS policies using parameter-safe set_config
@@ -56,7 +63,14 @@ export async function withAdminQuery<T>(
     throw new DatabaseUnavailableError();
   }
 
-  const client = await pool.connect();
+  let client: pg.PoolClient;
+  try {
+    client = await pool.connect();
+  } catch (err: any) {
+    setIsConnected(false);
+    throw new DatabaseUnavailableError(`PostgreSQL connection failed: ${err.message}`);
+  }
+
   try {
     return await callback(client);
   } finally {

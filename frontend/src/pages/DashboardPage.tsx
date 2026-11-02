@@ -37,13 +37,32 @@ export const DashboardPage: React.FC = () => {
   const [loadingWeather, setLoadingWeather] = useState(false);
 
   useEffect(() => {
-    if (!selectedFarm) return;
-
     // Fetch weather & alerts
     const loadWeather = async () => {
       try {
         setLoadingWeather(true);
-        const res = await api.getFarmWeather(selectedFarm.id);
+        let res: any = null;
+        if (selectedFarm?.id) {
+          try {
+            res = await api.getFarmWeather(selectedFarm.id);
+          } catch (e) {
+            console.warn('Selected farm weather fetch failed, falling back to live location:', e);
+          }
+        }
+        if (!res) {
+          let lat = selectedFarm?.latitude || 17.8524;
+          let lon = selectedFarm?.longitude || 78.6833;
+          if (navigator.geolocation && (!selectedFarm?.latitude || !selectedFarm?.longitude)) {
+            try {
+              const pos: GeolocationPosition = await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 3000 });
+              });
+              lat = pos.coords.latitude;
+              lon = pos.coords.longitude;
+            } catch {}
+          }
+          res = await api.getLiveWeather(lat, lon);
+        }
         setWeatherData(res);
         setAlerts(res.alerts || []);
       } catch (err) {
@@ -83,10 +102,21 @@ export const DashboardPage: React.FC = () => {
   }, [selectedFarm, fields]);
 
   const handleRefreshWeather = async () => {
-    if (!selectedFarm) return;
     try {
       setLoadingWeather(true);
-      const res = await api.refreshFarmWeather(selectedFarm.id);
+      let res: any = null;
+      if (selectedFarm?.id) {
+        try {
+          res = await api.refreshFarmWeather(selectedFarm.id);
+        } catch (e) {
+          console.warn('Selected farm refresh failed, falling back:', e);
+        }
+      }
+      if (!res) {
+        const lat = selectedFarm?.latitude || 17.8524;
+        const lon = selectedFarm?.longitude || 78.6833;
+        res = await api.getLiveWeather(lat, lon, true);
+      }
       setWeatherData(res);
       setAlerts(res.alerts || []);
     } finally {

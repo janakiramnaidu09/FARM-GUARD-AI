@@ -72,6 +72,7 @@ export function createApp(): express.Application {
   apiV1.use('/', soilRoutes);
   apiV1.use('/disease-assessments', diseaseRoutes);
   apiV1.use('/farms', weatherRoutes);
+  apiV1.use('/weather', weatherRoutes);
   apiV1.use('/', recommendationRoutes);
   apiV1.use('/conversations', assistantRoutes);
   apiV1.use('/history', historyRoutes);

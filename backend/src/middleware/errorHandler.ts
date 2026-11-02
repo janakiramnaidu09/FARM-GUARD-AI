@@ -60,21 +60,38 @@ export function globalErrorHandler(
   }
 
   // 3. User operational errors
-  const status = typeof err.status === 'number' ? err.status : 500;
-  const message =
-    status < 500
-      ? err.message
-      : 'An unexpected internal error occurred while processing your request. Please try again.';
+  let status = typeof err.status === 'number' ? err.status : 500;
+  let message = typeof err.message === 'string' ? err.message : '';
+
+  // Auto-detect common auth/validation error messages if status wasn't explicitly set
+  if (status === 500 && message) {
+    const lower = message.toLowerCase();
+    if (lower.includes('invalid email or password') || lower.includes('invalid or expired session') || lower.includes('session has expired')) {
+      status = 401;
+    } else if (lower.includes('already exists') || lower.includes('duplicate key')) {
+      status = 409;
+    } else if (lower.includes('not found')) {
+      status = 404;
+    } else if (lower.includes('deactivated') || lower.includes('unauthorized') || lower.includes('forbidden') || lower.includes('permission denied')) {
+      status = 403;
+    }
+  }
 
   if (status >= 500) {
     console.error(`[Error] Request ${requestId} failed:`, err);
+    if (!message || message.length === 0) {
+      message = 'An unexpected internal error occurred while processing your request. Please try again.';
+    }
   }
 
   res.status(status).json({
     success: false,
     error: {
-      code: err.code || (status === 400 ? 'BAD_REQUEST' : status === 403 ? 'FORBIDDEN' : 'INTERNAL_SERVER_ERROR'),
-      message,
+      code: err.code || (status === 401 ? 'UNAUTHORIZED' : status === 409 ? 'CONFLICT' : status === 404 ? 'NOT_FOUND' : status === 400 ? 'BAD_REQUEST' : status === 403 ? 'FORBIDDEN' : 'INTERNAL_SERVER_ERROR'),
+      message:
+        status >= 500 && process.env.NODE_ENV === 'production' && !err.expose
+          ? 'An unexpected internal error occurred while processing your request. Please try again.'
+          : message,
       requestId,
     },
   });

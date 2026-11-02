@@ -5,10 +5,10 @@
   "description": "FarmGuard AI - Primary Express.js REST API",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/copyMigrations.js",
     "backend": "tsx watch src/server.ts",
-    "build:backend": "tsc",
-    "build:api": "tsc",
+    "build:backend": "tsc && node scripts/copyMigrations.js",
+    "build:api": "tsc && node scripts/copyMigrations.js",
     "start": "node dist/server.js",
     "start:backend": "node dist/server.js",
     "start:api": "node dist/server.js",

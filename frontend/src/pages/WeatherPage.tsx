@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useFarm } from '../context/FarmContext.js';
 import { useLanguage } from '../context/LanguageContext.js';
 import { api } from '../lib/api.js';
@@ -38,28 +39,55 @@ export const WeatherPage: React.FC = () => {
   const [highWindKmh, setHighWindKmh] = useState('35');
 
   const loadWeather = async (force = false) => {
-    if (!selectedFarm) return;
     try {
       if (force) setRefreshing(true);
       else setLoading(true);
 
-      const res = force
-        ? await api.refreshFarmWeather(selectedFarm.id)
-        : await api.getFarmWeather(selectedFarm.id);
+      let res: any = null;
+      if (selectedFarm?.id) {
+        try {
+          res = force
+            ? await api.refreshFarmWeather(selectedFarm.id)
+            : await api.getFarmWeather(selectedFarm.id);
+        } catch (e) {
+          console.warn('Selected farm weather fetch failed, trying live fallback:', e);
+        }
+      }
+
+      if (!res) {
+        let lat = selectedFarm?.latitude || 17.8524;
+        let lon = selectedFarm?.longitude || 78.6833;
+        if (navigator.geolocation && (!selectedFarm?.latitude || !selectedFarm?.longitude)) {
+          try {
+            const pos: GeolocationPosition = await new Promise((resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 3000 });
+            });
+            lat = pos.coords.latitude;
+            lon = pos.coords.longitude;
+          } catch {}
+        }
+        res = await api.getLiveWeather(lat, lon, force);
+      }
+
       setWeatherData(res);
       setAlerts(res.alerts || []);
 
-      // Load AI alert summary
-      const alertRes = await api.getFarmAlerts(selectedFarm.id);
-      setAlertExplanation(alertRes.explanation);
+      // Load AI alert summary and alert thresholds if farm is selected
+      if (selectedFarm?.id) {
+        try {
+          const alertRes = await api.getFarmAlerts(selectedFarm.id);
+          setAlertExplanation(alertRes.explanation);
+        } catch {}
 
-      // Load prefs
-      const prefs = await api.getAlertPreferences(selectedFarm.id);
-      if (prefs.thresholds) {
-        setHeavyRainMm(String(prefs.thresholds.heavyRainMm ?? 25));
-        setExtremeHeatC(String(prefs.thresholds.extremeHeatC ?? 38));
-        setFrostC(String(prefs.thresholds.frostC ?? 4));
-        setHighWindKmh(String(prefs.thresholds.highWindKmh ?? 35));
+        try {
+          const prefs = await api.getAlertPreferences(selectedFarm.id);
+          if (prefs.thresholds) {
+            setHeavyRainMm(String(prefs.thresholds.heavyRainMm ?? 25));
+            setExtremeHeatC(String(prefs.thresholds.extremeHeatC ?? 38));
+            setFrostC(String(prefs.thresholds.frostC ?? 4));
+            setHighWindKmh(String(prefs.thresholds.highWindKmh ?? 35));
+          }
+        } catch {}
       }
     } catch (err) {
       console.warn('Weather load error:', err);
@@ -92,37 +120,42 @@ export const WeatherPage: React.FC = () => {
     }
   };
 
-  if (!selectedFarm) {
-    return (
-      <div className="text-center py-12 text-slate-500">
-        Please select or create a farm to view weather forecasts.
-      </div>
-    );
-  }
-
   const current = weatherData?.forecast?.current;
   const daily = weatherData?.forecast?.daily || [];
   const hourly = weatherData?.forecast?.hourly || [];
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
+      {!selectedFarm && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 text-xs sm:text-sm text-emerald-800 flex items-center justify-between">
+          <span>🌾 Showing live meteorological radar for your current device location.</span>
+          <Link to="/farms" className="font-semibold underline ml-2 shrink-0 text-emerald-900">
+            Create Farm &rarr;
+          </Link>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900">{t.weather.title}</h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            {selectedFarm.name} ({selectedFarm.district || selectedFarm.state || 'India'})
+            {selectedFarm
+              ? `${selectedFarm.name} (${selectedFarm.district || selectedFarm.state || 'India'})`
+              : 'Live Agricultural Radar (Device GPS Location)'}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsPrefsModalOpen(true)}
-            icon={<Sliders className="w-4 h-4" />}
-          >
-            {t.weather.alertPreferences}
-          </Button>
+          {selectedFarm && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsPrefsModalOpen(true)}
+              icon={<Sliders className="w-4 h-4" />}
+            >
+              {t.weather.alertPreferences}
+            </Button>
+          )}
 
           <Button
             size="sm"
