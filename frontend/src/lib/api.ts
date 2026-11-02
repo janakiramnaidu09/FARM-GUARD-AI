@@ -1,4 +1,25 @@
-const API_BASE = '/api/v1';
+const envApiUrl = (import.meta.env.VITE_API_URL as string | undefined)?.trim();
+const API_BASE = envApiUrl ? `${envApiUrl.replace(/\/$/, '')}/api/v1` : '/api/v1';
+
+const TOKEN_KEY = 'farmguard_auth_token';
+
+export function getStoredToken(): string | null {
+  try {
+    return localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setStoredToken(token: string | null): void {
+  try {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+  } catch {}
+}
 
 export class ApiError extends Error {
   code: string;
@@ -17,6 +38,11 @@ export class ApiError extends Error {
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE}${endpoint}`;
   const headers = new Headers(options.headers || {});
+
+  const token = getStoredToken();
+  if (token && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
 
   if (!(options.body instanceof FormData) && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
@@ -48,10 +74,28 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 
 export const api = {
   // Auth
-  signup: (body: any) => request<any>('/auth/signup', { method: 'POST', body: JSON.stringify(body) }),
-  login: (body: any) => request<any>('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
-  logout: () => request<any>('/auth/logout', { method: 'POST' }),
-  refresh: () => request<any>('/auth/refresh', { method: 'POST' }),
+  signup: async (body: any) => {
+    const res = await request<any>('/auth/signup', { method: 'POST', body: JSON.stringify(body) });
+    if (res?.token) setStoredToken(res.token);
+    return res;
+  },
+  login: async (body: any) => {
+    const res = await request<any>('/auth/login', { method: 'POST', body: JSON.stringify(body) });
+    if (res?.token) setStoredToken(res.token);
+    return res;
+  },
+  logout: async () => {
+    try {
+      await request<any>('/auth/logout', { method: 'POST' });
+    } finally {
+      setStoredToken(null);
+    }
+  },
+  refresh: async () => {
+    const res = await request<any>('/auth/refresh', { method: 'POST' });
+    if (res?.token) setStoredToken(res.token);
+    return res;
+  },
   getMe: () => request<any>('/auth/me'),
 
   // Farms
@@ -110,4 +154,3 @@ export const api = {
   getHealth: () => request<any>('/health'),
   getReady: () => request<any>('/ready'),
 };
-

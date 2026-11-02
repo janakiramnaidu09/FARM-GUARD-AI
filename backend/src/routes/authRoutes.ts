@@ -23,7 +23,7 @@ function setSessionCookie(res: any, token: string, expiresAt: string) {
   res.cookie(config.AUTH_COOKIE_NAME, token, {
     httpOnly: true,
     secure: config.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax',
     expires: new Date(expiresAt),
     path: '/',
   });
