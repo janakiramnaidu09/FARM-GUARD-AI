@@ -1,5 +1,27 @@
-const envApiUrl = (import.meta.env.VITE_API_URL as string | undefined)?.trim();
-const API_BASE = envApiUrl ? `${envApiUrl.replace(/\/$/, '')}/api/v1` : '/api/v1';
+function resolveApiBase(): string {
+  const envApiUrl = (import.meta.env.VITE_API_URL as string | undefined)?.trim();
+  if (!envApiUrl) {
+    return '/api/v1';
+  }
+
+  // Strip trailing slashes
+  let cleanUrl = envApiUrl.replace(/\/+$/, '');
+
+  // If user already included /api/v1, use directly
+  if (cleanUrl.endsWith('/api/v1')) {
+    return cleanUrl;
+  }
+
+  // If user included /api at the end, append only /v1
+  if (cleanUrl.endsWith('/api')) {
+    return `${cleanUrl}/v1`;
+  }
+
+  // Base domain provided (e.g. https://farm-guard-ai.onrender.com)
+  return `${cleanUrl}/api/v1`;
+}
+
+const API_BASE = resolveApiBase();
 
 const TOKEN_KEY = 'farmguard_auth_token';
 
